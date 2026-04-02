@@ -17,12 +17,12 @@ export default function FloatingButtons() {
   const [cfg, setCfg] = useState<FabConfig>(DEFAULTS);
 
   useEffect(() => {
-    supabase
+    (supabase as any)
       .from("admin_config")
       .select("tawk_id, qq_qrcode_url, telegram_link")
       .limit(1)
       .single()
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         if (data) {
           setCfg({
             tawk_id: data.tawk_id || DEFAULTS.tawk_id,

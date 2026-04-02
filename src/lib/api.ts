@@ -33,7 +33,7 @@ export async function testPanelConnection(token: string, panelUrl: string, panel
 
 // Client APIs
 export async function getPublicConfig() {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("admin_config")
     .select("price_month, price_quarter, price_year, price_exclusive_month, price_exclusive_quarter, price_exclusive_year, price_shared_month, price_shared_quarter, price_shared_year, hupi_wechat, hupi_alipay, crypto_usdt, crypto_trx, crypto_address, tawk_id, qq_qrcode_url, telegram_link, landing_image")
     .limit(1)
@@ -62,7 +62,7 @@ export async function createOrder(params: {
 
 // Look up orders by email
 export async function lookupOrdersByEmail(email: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("orders")
     .select("*")
     .eq("email", email)
@@ -88,7 +88,7 @@ export async function getExchangeRates() {
 
 // Plans APIs
 export async function getPlans() {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("plans")
     .select("*")
     .eq("enabled", true)
@@ -98,7 +98,7 @@ export async function getPlans() {
 }
 
 export async function getPlanRegions() {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("plan_regions")
     .select("*");
   if (error) throw error;
@@ -123,7 +123,7 @@ export async function adminDeletePlan(token: string, planId: string) {
 
 // Regions APIs
 export async function getRegions() {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("regions")
     .select("*")
     .eq("enabled", true)
@@ -171,7 +171,7 @@ export async function adminBatchDeleteOrders(token: string, orderIds: string[]) 
 
 // Tutorials APIs
 export async function getTutorials() {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("tutorials")
     .select("*")
     .eq("enabled", true)
@@ -203,7 +203,7 @@ export async function createClientOnPanel(orderId: string, regionId?: string | n
 
 // Get orders for a UUID
 export async function getOrders(uuid: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("orders")
     .select("*")
     .eq("uuid", uuid)

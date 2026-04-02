@@ -8,12 +8,12 @@ export default function LandingPage() {
   const [landingImage, setLandingImage] = useState("https://free.picui.cn/free/2026/03/28/69c75f365413d.png");
 
   useEffect(() => {
-    supabase
+    (supabase as any)
       .from("admin_config")
       .select("landing_image")
       .limit(1)
       .single()
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         if (data?.landing_image) setLandingImage(data.landing_image);
       });
   }, []);
