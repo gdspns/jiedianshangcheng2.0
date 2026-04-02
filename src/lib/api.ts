@@ -62,8 +62,8 @@ export async function createOrder(params: {
 
 // Look up orders by email
 export async function lookupOrdersByEmail(email: string) {
-  const { data, error } = await (supabase
-    .from("orders") as any)
+  const { data, error } = await (supabase as any)
+    .from("orders")
     .select("*")
     .eq("email", email)
     .in("status", ["fulfilled", "paid"])
