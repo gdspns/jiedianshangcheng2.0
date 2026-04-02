@@ -171,8 +171,8 @@ export async function adminBatchDeleteOrders(token: string, orderIds: string[]) 
 
 // Tutorials APIs
 export async function getTutorials() {
-  const { data, error } = await (supabase
-    .from("tutorials") as any)
+  const { data, error } = await (supabase as any)
+    .from("tutorials")
     .select("*")
     .eq("enabled", true)
     .order("sort_order", { ascending: true });
