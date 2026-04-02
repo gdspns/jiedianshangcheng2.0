@@ -123,8 +123,8 @@ export async function adminDeletePlan(token: string, planId: string) {
 
 // Regions APIs
 export async function getRegions() {
-  const { data, error } = await (supabase
-    .from("regions") as any)
+  const { data, error } = await (supabase as any)
+    .from("regions")
     .select("*")
     .eq("enabled", true)
     .order("sort_order", { ascending: true });
