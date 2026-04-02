@@ -88,8 +88,8 @@ export async function getExchangeRates() {
 
 // Plans APIs
 export async function getPlans() {
-  const { data, error } = await (supabase
-    .from("plans") as any)
+  const { data, error } = await (supabase as any)
+    .from("plans")
     .select("*")
     .eq("enabled", true)
     .order("sort_order", { ascending: true });
