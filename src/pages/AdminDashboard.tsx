@@ -1108,9 +1108,10 @@ export default function AdminDashboard() {
                               <select value={region.protocol}
                                 onChange={e => updateRegionField(region.id, "protocol", e.target.value)}
                                 className="w-full border border-input p-2 rounded-lg text-sm bg-background focus:ring-2 focus:ring-accent outline-none">
-                                <option value="mixed">Mixed (用户名+密码)</option>
+                                <option value="socks">Socks5 (用户名+密码)</option>
                                 <option value="vless">Vless (UUID)</option>
                                 <option value="vmess">Vmess (UUID)</option>
+                                <option value="trojan">Trojan (UUID)</option>
                               </select>
                             </div>
                             <div className="md:col-span-1">
