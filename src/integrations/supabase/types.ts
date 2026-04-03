@@ -134,6 +134,7 @@ export type Database = {
       orders: {
         Row: {
           amount: number
+          client_remark: string | null
           created_at: string
           crypto_amount: number | null
           crypto_currency: string | null
@@ -141,6 +142,8 @@ export type Database = {
           email: string | null
           fulfilled_at: string | null
           id: string
+          inbound_id: number | null
+          inbound_remark: string | null
           months: number
           notify_data: Json | null
           paid_at: string | null
@@ -154,6 +157,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          client_remark?: string | null
           created_at?: string
           crypto_amount?: number | null
           crypto_currency?: string | null
@@ -161,6 +165,8 @@ export type Database = {
           email?: string | null
           fulfilled_at?: string | null
           id?: string
+          inbound_id?: number | null
+          inbound_remark?: string | null
           months: number
           notify_data?: Json | null
           paid_at?: string | null
@@ -174,6 +180,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          client_remark?: string | null
           created_at?: string
           crypto_amount?: number | null
           crypto_currency?: string | null
@@ -181,6 +188,8 @@ export type Database = {
           email?: string | null
           fulfilled_at?: string | null
           id?: string
+          inbound_id?: number | null
+          inbound_remark?: string | null
           months?: number
           notify_data?: Json | null
           paid_at?: string | null
