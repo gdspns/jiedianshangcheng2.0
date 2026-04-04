@@ -308,7 +308,10 @@ export default function ClientPortal() {
     }
   };
 
-  const getDaysLeft = () => Math.max(0, Math.ceil((clientData.expiryDate - Date.now()) / 86400000));
+  const getDaysLeft = () => {
+    if (clientData.expiryDate === 0) return -1; // unlimited
+    return Math.max(0, Math.ceil((clientData.expiryDate - Date.now()) / 86400000));
+  };
 
   const cleanupPolling = () => {
     if (pollRef.current) {
