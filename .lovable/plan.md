@@ -2,46 +2,67 @@
 
 ## Problem
 
-In `create-client/index.ts` line 159, the logic is:
-
+In `proxy-3xui/index.ts` line 159, when looking up a client:
 ```typescript
-if (protocol === "socks" || salesProtocol === "mixed") {
-  // generates SOCKS5 username+password
-}
+expiryTime: entry.expiryTime || clientStats?.expiryTime || inbound.expiryTime || 0,
 ```
+If a UUID client has no expiry set (`expiryTime = 0`), JavaScript's `||` treats `0` as falsy and falls through to `inbound.expiryTime` — the inbound-level expiry. This causes:
+1. "Remaining days" shows the inbound's expiry instead of "unlimited"
+2. On renewal, the new expiry is calculated by adding months to the inbound's expiry date, giving a wrong result
 
-This means whenever the admin sets protocol to "mixed" (or the inbound is socks), it always generates SOCKS5 credentials — ignoring what the inbound's actual protocol is. When the admin sets a region to "vless", the `salesProtocol` variable correctly becomes `"vless"`, but the inbound on the 3x-ui panel might actually be a vless inbound. The current code should use the **inbound's actual protocol** (`protocol` from the panel) as the primary decision, and only fall back to socks5 generation when the protocol is literally "socks".
+On the frontend side (`ClientPortal.tsx` line 295):
+```typescript
+expiryDate: res.expiryDate || Date.now() + 30 * 86400000,
+```
+Again, `0` (meaning unlimited) is treated as falsy and replaced with a 30-day default.
 
 ## Plan
 
-### 1. Fix protocol decision logic in `create-client/index.ts`
+### 1. Fix `proxy-3xui/index.ts` — stop falling back to inbound expiry
 
-Change line 159 from:
+Line 159: Change `||` chain to only use client-level expiry, not inbound-level:
 ```typescript
-if (protocol === "socks" || salesProtocol === "mixed") {
+expiryTime: entry.expiryTime || clientStats?.expiryTime || 0,
 ```
-to:
+Remove `inbound.expiryTime` from the chain. `0` means "no expiry / unlimited".
+
+### 2. Fix `ClientPortal.tsx` — handle `expiryDate = 0` as unlimited
+
+**Login handler (line 294-299):** Preserve `0` as a valid value meaning unlimited:
 ```typescript
-if (protocol === "socks") {
+expiryDate: res.expiryDate ?? 0,
 ```
 
-This ensures:
-- If the 3x-ui inbound is **socks** protocol → generate username+password (SOCKS5)
-- If the inbound is **vless/vmess/trojan** → generate UUID via `addClient` API
+**`getDaysLeft` (line 311):** Return `-1` (or a sentinel) for unlimited:
+```typescript
+const getDaysLeft = () => {
+  if (clientData.expiryDate === 0) return -1; // unlimited
+  return Math.max(0, Math.ceil((clientData.expiryDate - Date.now()) / 86400000));
+};
+```
 
-The `salesProtocol` from the region/config is already used to select which inbound to target (via `salesInboundId`). The actual client generation method should be determined by the inbound's real protocol, not the admin's label.
+**Dashboard display (line 786-790):** Show "无限期" when unlimited:
+```tsx
+{getDaysLeft() < 0 ? (
+  <>
+    <span className="text-3xl font-extrabold text-foreground">无限期</span>
+  </>
+) : (
+  <>
+    <span className="text-5xl font-extrabold text-foreground">{getDaysLeft()}</span>
+    <span className="...">天</span>
+  </>
+)}
+```
 
-### 2. Add "trojan" and "socks" options to admin region protocol dropdown
-
-Update the `<select>` in `AdminDashboard.tsx` (line 1111) to include all supported protocols:
-- Mixed → Socks (用户名+密码)
-- Vless (UUID)
-- Vmess (UUID)  
-- Trojan (UUID)
-
-Rename "Mixed" to "Socks5" for clarity since that's what it actually generates.
+**Renewal expiry calculation (line 449-452):** When current expiry is 0 (unlimited), start from `Date.now()` instead:
+```typescript
+const baseExpiry = clientData.expiryDate === 0 ? Date.now() : clientData.expiryDate;
+const newExpiry = new Date(baseExpiry);
+newExpiry.setDate(newExpiry.getDate() + checkoutData.months * 30);
+```
 
 ### Files Changed
-- `supabase/functions/create-client/index.ts` — fix protocol branching logic
-- `src/pages/AdminDashboard.tsx` — update protocol dropdown options
+- `supabase/functions/proxy-3xui/index.ts` — remove `inbound.expiryTime` fallback
+- `src/pages/ClientPortal.tsx` — handle `0` as unlimited in login, display, and renewal
 
