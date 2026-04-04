@@ -482,6 +482,9 @@ Deno.serve(async (req) => {
                 .update({
                   status: "fulfilled",
                   fulfilled_at: new Date().toISOString(),
+                  inbound_id: client.inboundId,
+                  inbound_remark: client.inboundRemark || "",
+                  client_remark: clientRemark || "",
                   ...(clientRemark && !order.email ? { email: clientRemark } : {}),
                 })
                 .eq("id", order.id);
