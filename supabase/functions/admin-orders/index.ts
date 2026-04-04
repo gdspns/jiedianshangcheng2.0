@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
         .order("created_at", { ascending: false });
 
       if (search) {
-        query = query.or(`uuid.ilike.%${search}%,plan_name.ilike.%${search}%,email.ilike.%${search}%`);
+        query = query.or(`uuid.ilike.%${search}%,plan_name.ilike.%${search}%,email.ilike.%${search}%,inbound_remark.ilike.%${search}%,client_remark.ilike.%${search}%`);
       }
 
       if (statusFilter && statusFilter !== "all") {
