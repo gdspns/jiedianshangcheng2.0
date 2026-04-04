@@ -90,6 +90,8 @@ interface Order {
   tx_hash: string | null;
   months: number;
   remark?: string;
+  inbound_remark?: string;
+  client_remark?: string;
 }
 
 const defaultConfig: AdminConfigData = {
