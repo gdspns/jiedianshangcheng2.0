@@ -156,7 +156,7 @@ function findClientByIdentifier(inboundsData: any, identifier: string) {
         return {
           found: true,
           email: remark,
-          expiryTime: entry.expiryTime || clientStats?.expiryTime || inbound.expiryTime || 0,
+          expiryTime: entry.expiryTime || clientStats?.expiryTime || 0,
           up: clientStats?.up || 0,
           down: clientStats?.down || 0,
           total: entry.totalGB ? entry.totalGB * 1073741824 : clientStats?.total || 0,
