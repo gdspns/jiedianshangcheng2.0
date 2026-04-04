@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
 
       const enrichedOrders = (ordersResult.data || []).map((order: any) => ({
         ...order,
-        remark: remarkMap[order.uuid] || order.email || "",
+        remark: remarkMap[order.uuid] || order.client_remark || order.email || "",
       }));
 
       return new Response(JSON.stringify({ orders: enrichedOrders, total: ordersResult.count }), {
