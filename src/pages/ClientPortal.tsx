@@ -292,7 +292,7 @@ export default function ClientPortal() {
       const res = await lookupClient(extracted);
       if (res?.success) {
         setClientData({
-          expiryDate: res.expiryDate || Date.now() + 30 * 86400000,
+          expiryDate: res.expiryDate ?? 0,
           trafficUsed: res.trafficUsed ?? 0,
           trafficTotal: res.trafficTotal ?? 100,
           email: res.email || "",
