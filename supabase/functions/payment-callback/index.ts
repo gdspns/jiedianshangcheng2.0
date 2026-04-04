@@ -253,6 +253,7 @@ async function findClient(panelUrl: string, cookie: string, identifier: string) 
           const expiryTime = isSocks5 ? inbound.expiryTime || 0 : entry.expiryTime || 0;
           return {
             inboundId: inbound.id,
+            inboundRemark: inbound.remark || "",
             email,
             expiryTime,
             isSocks5,
