@@ -54,6 +54,7 @@ export async function createOrder(params: {
   durationDays: number;
   amount: number;
   paymentMethod: string;
+  orderType?: string;
   cryptoAmount?: number;
   cryptoCurrency?: string;
   email?: string;
