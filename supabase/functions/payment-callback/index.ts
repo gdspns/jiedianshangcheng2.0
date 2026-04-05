@@ -446,15 +446,8 @@ Deno.serve(async (req) => {
         })
         .eq("id", order.id);
 
-      // Check if this is a "buy_new" order by looking up the plan category
-      const { data: planData } = await supabase
-        .from("plans")
-        .select("category")
-        .eq("title", order.plan_name)
-        .limit(1)
-        .single();
-
-      const isBuyNewOrder = planData?.category?.startsWith("new_") || false;
+      // Use order_type field to determine if this is a new purchase or renewal
+      const isBuyNewOrder = order.order_type === "buy_new";
 
       // For buy_new orders, skip renewal logic — client will call create-client after polling
       let finalStatus = "paid";
@@ -552,7 +545,7 @@ Deno.serve(async (req) => {
       const { action } = body;
 
       if (action === "create-order") {
-        const { uuid, planName, months, durationDays, amount, paymentMethod, cryptoAmount, cryptoCurrency, email } = body;
+        const { uuid, planName, months, durationDays, amount, paymentMethod, orderType, cryptoAmount, cryptoCurrency, email } = body;
 
         if (!uuid || !planName || !months || !amount || !paymentMethod) {
           return new Response(JSON.stringify({ error: "缺少必要参数" }), {
@@ -572,6 +565,7 @@ Deno.serve(async (req) => {
             duration_days: durationDays || (months * 30),
             amount,
             payment_method: paymentMethod,
+            order_type: orderType || "renew",
             trade_no: tradeNo,
             crypto_amount: cryptoAmount || null,
             crypto_currency: cryptoCurrency || null,

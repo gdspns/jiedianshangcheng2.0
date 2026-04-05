@@ -219,14 +219,8 @@ Deno.serve(async (req) => {
         tx_hash: result.txHash,
       }).eq("id", order.id);
 
-      // Check if this is a new purchase order (buy_new)
-      const { data: planData } = await supabase
-        .from("plans")
-        .select("category")
-        .eq("title", order.plan_name)
-        .limit(1)
-        .single();
-      const isBuyNewOrder = planData?.category?.startsWith("new_") || false;
+      // Use order_type field to determine if this is a new purchase or renewal
+      const isBuyNewOrder = order.order_type === "buy_new";
 
       // Extend expiry via 3x-ui (only for renewal orders)
       let clientRemark = "";
