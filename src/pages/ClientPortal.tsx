@@ -494,6 +494,7 @@ export default function ClientPortal() {
         uuid,
         planName: checkoutData.planName,
         months: checkoutData.months,
+        durationDays: checkoutData.durationDays,
         amount: checkoutData.price,
         paymentMethod: selectedMethod,
         ...(isCrypto ? { cryptoAmount: cryptoPrice, cryptoCurrency: selectedMethod.toUpperCase() } : {}),
