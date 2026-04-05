@@ -1219,7 +1219,7 @@ export default function ClientPortal() {
                                         <li className="flex items-center"><ChevronRight className="w-4 h-4 text-success mr-1 shrink-0" /> 有效期 {plan.duration_days} 天</li>
                                       </ul>
                                       <button
-                                        onClick={() => !isSoldOut && initiateCheckout(plan.duration_months, plan.price, plan.title, "buy_new", activeRegionId)}
+                                        onClick={() => !isSoldOut && initiateCheckout(plan.duration_months, plan.price, plan.title, "buy_new", activeRegionId, plan.duration_days)}
                                         disabled={isSoldOut}
                                         className={`w-full font-bold py-3 rounded-xl transition-colors ${isSoldOut ? "bg-muted text-muted-foreground cursor-not-allowed" : plan.featured ? "bg-success text-success-foreground hover:opacity-90 shadow-md" : "bg-success/10 text-success hover:bg-success hover:text-success-foreground"}`}>
                                         {isSoldOut ? "暂无库存，等待客服添加" : "购买开通"}
