@@ -552,7 +552,7 @@ Deno.serve(async (req) => {
       const { action } = body;
 
       if (action === "create-order") {
-        const { uuid, planName, months, durationDays, amount, paymentMethod, cryptoAmount, cryptoCurrency, email } = body;
+        const { uuid, planName, months, durationDays, amount, paymentMethod, orderType, cryptoAmount, cryptoCurrency, email } = body;
 
         if (!uuid || !planName || !months || !amount || !paymentMethod) {
           return new Response(JSON.stringify({ error: "缺少必要参数" }), {
