@@ -572,6 +572,7 @@ Deno.serve(async (req) => {
             duration_days: durationDays || (months * 30),
             amount,
             payment_method: paymentMethod,
+            order_type: orderType || "renew",
             trade_no: tradeNo,
             crypto_amount: cryptoAmount || null,
             crypto_currency: cryptoCurrency || null,
