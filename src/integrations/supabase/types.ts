@@ -147,6 +147,7 @@ export type Database = {
           inbound_remark: string | null
           months: number
           notify_data: Json | null
+          order_type: string
           paid_at: string | null
           payment_method: string
           plan_name: string
@@ -171,6 +172,7 @@ export type Database = {
           inbound_remark?: string | null
           months: number
           notify_data?: Json | null
+          order_type?: string
           paid_at?: string | null
           payment_method: string
           plan_name: string
@@ -195,6 +197,7 @@ export type Database = {
           inbound_remark?: string | null
           months?: number
           notify_data?: Json | null
+          order_type?: string
           paid_at?: string | null
           payment_method?: string
           plan_name?: string
