@@ -974,7 +974,7 @@ export default function ClientPortal() {
                                 </li>
                               </ul>
                               <button
-                                onClick={() => initiateCheckout(plan.duration_months, plan.price, plan.title)}
+                                onClick={() => initiateCheckout(plan.duration_months, plan.price, plan.title, "renew", null, plan.duration_days)}
                                 className={`w-full font-bold py-3 rounded-xl transition-colors ${plan.featured ? "bg-success text-success-foreground hover:opacity-90 shadow-md" : "bg-success/10 text-success hover:bg-success hover:text-success-foreground"}`}
                               >
                                 立即购买
