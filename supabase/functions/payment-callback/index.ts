@@ -569,6 +569,7 @@ Deno.serve(async (req) => {
             uuid,
             plan_name: planName,
             months,
+            duration_days: durationDays || (months * 30),
             amount,
             payment_method: paymentMethod,
             trade_no: tradeNo,

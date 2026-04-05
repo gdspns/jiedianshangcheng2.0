@@ -237,7 +237,8 @@ Deno.serve(async (req) => {
           const client = await findClient(config.panel_url, cookie, order.uuid);
           if (client) {
             clientRemark = client.email || "";
-            const success = await extendExpiry(config.panel_url, cookie, client.inboundId, client.email, client.expiryTime, order.months);
+            const durationDays = order.duration_days || (order.months * 30);
+            const success = await extendExpiry(config.panel_url, cookie, client.inboundId, client.email, client.expiryTime, durationDays);
             if (success) {
               await supabase.from("orders").update({
                 status: "fulfilled",
