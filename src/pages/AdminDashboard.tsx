@@ -807,18 +807,52 @@ export default function AdminDashboard() {
                 </h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold mb-1">图片链接</label>
-                    <input type="text" value={config.landingImage} onChange={e => setConfig({ ...config, landingImage: e.target.value })}
-                      placeholder="https://example.com/hero-image.png"
-                      className="w-full border border-input p-2.5 rounded-lg focus:ring-2 focus:ring-admin-primary outline-none bg-background" />
-                    <p className="text-xs text-muted-foreground mt-1">着陆页顶部展示的宣传图片，留空则不显示</p>
+                    <label className="block text-sm font-semibold mb-1">图片链接（支持多张，首页将轮播展示）</label>
+                    <p className="text-xs text-muted-foreground mb-2">着陆页顶部展示的宣传图片，多张图片将自动轮播</p>
+                    {(() => {
+                      let images: string[] = [];
+                      try {
+                        const parsed = JSON.parse(config.landingImage);
+                        if (Array.isArray(parsed)) images = parsed;
+                        else if (config.landingImage) images = [config.landingImage];
+                      } catch {
+                        if (config.landingImage) images = [config.landingImage];
+                      }
+                      const updateImages = (newImages: string[]) => {
+                        setConfig({ ...config, landingImage: newImages.length > 0 ? JSON.stringify(newImages) : "" });
+                      };
+                      return (
+                        <div className="space-y-3">
+                          {images.map((img, idx) => (
+                            <div key={idx} className="flex gap-2 items-start">
+                              <div className="flex-1 space-y-1">
+                                <div className="flex gap-2">
+                                  <input type="text" value={img} onChange={e => {
+                                    const newImages = [...images];
+                                    newImages[idx] = e.target.value;
+                                    updateImages(newImages);
+                                  }}
+                                    placeholder="https://example.com/hero-image.png"
+                                    className="flex-1 border border-input p-2.5 rounded-lg focus:ring-2 focus:ring-admin-primary outline-none bg-background text-sm" />
+                                  <button onClick={() => { const newImages = images.filter((_, i) => i !== idx); updateImages(newImages); }}
+                                    className="px-3 py-2.5 bg-destructive text-destructive-foreground rounded-lg hover:opacity-90 transition-colors text-sm font-medium shrink-0">
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                                {img && (
+                                  <img src={img} alt={`着陆页图片${idx + 1}`} className="max-h-24 rounded border border-border" />
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          <button onClick={() => updateImages([...images, ""])}
+                            className="flex items-center gap-1 text-sm text-admin-primary hover:underline font-medium">
+                            <Plus className="w-4 h-4" /> 添加图片
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </div>
-                  {config.landingImage && (
-                    <div className="mt-2">
-                      <p className="text-xs text-muted-foreground mb-1">预览：</p>
-                      <img src={config.landingImage} alt="着陆页图片预览" className="max-h-32 rounded-lg border border-border" />
-                    </div>
-                  )}
                   <div className="pt-4">
                     <button onClick={() => handleSave("landing")} disabled={!!btnStatus["landing"]}
                       className="w-full bg-admin-primary text-admin-primary-foreground py-2.5 rounded-lg font-bold hover:opacity-90 transition-colors shadow-md disabled:opacity-70">

@@ -1,11 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 
+function parseLandingImages(raw: string): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  } catch {}
+  return [raw];
+}
+
 export default function LandingPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  const [landingImage, setLandingImage] = useState("https://free.picui.cn/free/2026/03/28/69c75f365413d.png");
+  const [landingImages, setLandingImages] = useState<string[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     (supabase as any)
@@ -14,9 +24,20 @@ export default function LandingPage() {
       .limit(1)
       .single()
       .then(({ data }: any) => {
-        if (data?.landing_image) setLandingImage(data.landing_image);
+        if (data?.landing_image) {
+          setLandingImages(parseLandingImages(data.landing_image));
+        }
       });
   }, []);
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    if (landingImages.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % landingImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [landingImages.length]);
 
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
@@ -190,8 +211,34 @@ export default function LandingPage() {
               <li>原生真实物理节点，保障账号高权重与推流</li>
             </ul>
           </div>
-          <div className="lp-hero-image">
-            <img src={landingImage} alt="企业级静态住宅IP，专业解决AI降智、Claude封号、跨境短视频限流问题" />
+          <div className="lp-hero-image" style={{ position: "relative", overflow: "hidden" }}>
+            {landingImages.length > 0 ? (
+              landingImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt="企业级静态住宅IP，专业解决AI降智、Claude封号、跨境短视频限流问题"
+                  style={{
+                    position: idx === 0 ? "relative" : "absolute",
+                    top: 0, left: 0, width: "100%",
+                    opacity: currentSlide === idx ? 1 : 0,
+                    transition: "opacity 0.8s ease-in-out",
+                  }}
+                />
+              ))
+            ) : null}
+            {landingImages.length > 1 && (
+              <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 12 }}>
+                {landingImages.map((_, idx) => (
+                  <button key={idx} onClick={() => setCurrentSlide(idx)}
+                    style={{
+                      width: 10, height: 10, borderRadius: "50%", border: "none", cursor: "pointer",
+                      background: currentSlide === idx ? "var(--lp-primary)" : "rgba(128,128,128,0.4)",
+                      transition: "background 0.3s",
+                    }} />
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
