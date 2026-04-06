@@ -1759,6 +1759,9 @@ export default function ClientPortal() {
                       <div className="p-4">
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                           <span className="font-bold text-foreground text-lg">{order.plan_name}</span>
+                          <span className="text-xs ml-2 px-2 py-0.5 rounded-full bg-muted font-medium">
+                            {order.order_type === "buy_new" ? "购买开通" : "在线续费"}
+                          </span>
                           <span className={`text-xs font-bold px-2 py-1 rounded-full ${order.status === "fulfilled" ? "bg-success/20 text-success" : "bg-warning/20 text-warning"}`}>
                             {order.status === "fulfilled" ? "已完成" : "已支付"}
                           </span>
