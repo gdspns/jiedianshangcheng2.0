@@ -89,6 +89,8 @@ interface Order {
   crypto_currency: string | null;
   tx_hash: string | null;
   months: number;
+  duration_days?: number;
+  order_type?: string;
   remark?: string;
   inbound_remark?: string;
   client_remark?: string;
