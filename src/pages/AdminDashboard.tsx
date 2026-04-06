@@ -852,6 +852,7 @@ export default function AdminDashboard() {
                         </div>
                       );
                     })()}
+                  </div>
                   <div className="pt-4">
                     <button onClick={() => handleSave("landing")} disabled={!!btnStatus["landing"]}
                       className="w-full bg-admin-primary text-admin-primary-foreground py-2.5 rounded-lg font-bold hover:opacity-90 transition-colors shadow-md disabled:opacity-70">
