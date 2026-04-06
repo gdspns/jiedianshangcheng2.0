@@ -1874,7 +1874,7 @@ export default function ClientPortal() {
                         <div className="px-5 pb-5 border-t border-border">
                           <div
                             className="prose prose-sm max-w-none text-foreground mt-3"
-                            dangerouslySetInnerHTML={{ __html: t.content }}
+                            dangerouslySetInnerHTML={{ __html: fixMobileVideo(t.content) }}
                           />
                         </div>
                       )}

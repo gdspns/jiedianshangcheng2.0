@@ -50,17 +50,17 @@ function blocksToHtml(blocks: ContentBlock[]): string {
       if (b.type === "video" && b.value.trim()) {
         const url = b.value.trim();
         const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
-        if (ytMatch) {
-          return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen style="width:100%;aspect-ratio:16/9;border-radius:8px;margin:8px 0;"></iframe>`;
+      if (ytMatch) {
+          return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen playsinline webkit-playsinline style="width:100%;aspect-ratio:16/9;border-radius:8px;margin:8px 0;"></iframe>`;
         }
         const biliMatch = url.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/);
         if (biliMatch) {
-          return `<iframe src="//player.bilibili.com/player.html?bvid=${biliMatch[1]}&high_quality=1&danmaku=0" frameborder="0" allowfullscreen scrolling="no" style="width:100%;aspect-ratio:16/9;border-radius:8px;margin:8px 0;"></iframe>`;
+          return `<iframe src="//player.bilibili.com/player.html?bvid=${biliMatch[1]}&high_quality=1&danmaku=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts allow-popups" scrolling="no" style="width:100%;aspect-ratio:16/9;border-radius:8px;margin:8px 0;"></iframe>`;
         }
         if (/\.(mp4|webm|ogg)(\?|$)/i.test(url)) {
-          return `<video src="${url}" controls playsinline style="width:100%;border-radius:8px;margin:8px 0;"></video>`;
+          return `<video src="${url}" controls playsinline webkit-playsinline preload="metadata" style="width:100%;border-radius:8px;margin:8px 0;"></video>`;
         }
-        return `<iframe src="${url}" frameborder="0" allowfullscreen style="width:100%;aspect-ratio:16/9;border-radius:8px;margin:8px 0;"></iframe>`;
+        return `<iframe src="${url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen playsinline webkit-playsinline style="width:100%;aspect-ratio:16/9;border-radius:8px;margin:8px 0;"></iframe>`;
       }
       if (b.type === "text" && b.value.trim()) {
         if (/<[^>]+>/.test(b.value)) return b.value;
