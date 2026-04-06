@@ -89,6 +89,8 @@ interface Order {
   crypto_currency: string | null;
   tx_hash: string | null;
   months: number;
+  duration_days?: number;
+  order_type?: string;
   remark?: string;
   inbound_remark?: string;
   client_remark?: string;
@@ -1336,7 +1338,7 @@ export default function AdminDashboard() {
                             </td>
                             <td className="py-3 px-2">
                               <span className="font-medium">{order.plan_name}</span>
-                              <span className="text-muted-foreground text-xs ml-1">({order.months}个月)</span>
+                              <span className="text-muted-foreground text-xs ml-1">({order.duration_days || order.months * 30}天 · {order.order_type === "buy_new" ? "购买开通" : "续费"})</span>
                             </td>
                             <td className="py-3 px-2">
                               {order.crypto_amount ? (
