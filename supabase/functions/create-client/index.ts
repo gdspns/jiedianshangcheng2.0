@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
     let credentials: Record<string, string> = {};
     let clientSettings: any;
 
-    if (protocol === "socks") {
+    if (protocol === "socks" || protocol === "mixed") {
       // SOCKS5 / mixed: generate username + password
       const username = randomStr(8, "abcdefghijklmnopqrstuvwxyz0123456789");
       const password = randomStr(10, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
