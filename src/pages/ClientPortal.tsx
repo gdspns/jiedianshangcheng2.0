@@ -1024,14 +1024,24 @@ export default function ClientPortal() {
                     params.set("encryption", "none");
                     if (security && security !== "none") {
                       params.set("security", security);
-                      const tlsSettings = ss.tlsSettings || ss.realitySettings || {};
-                      if (tlsSettings.fingerprint) params.set("fp", tlsSettings.fingerprint);
-                      if (tlsSettings.alpn?.length) params.set("alpn", tlsSettings.alpn.join(","));
-                      if (tlsSettings.serverName) params.set("sni", tlsSettings.serverName);
-                      if (ss.realitySettings) {
-                        params.set("security", "reality");
-                        if (ss.realitySettings.publicKey) params.set("pbk", ss.realitySettings.publicKey);
-                        if (ss.realitySettings.shortId) params.set("sid", ss.realitySettings.shortId);
+                      if (security === "reality" && ss.realitySettings) {
+                        const rs = ss.realitySettings;
+                        const rsSettings = rs.settings || {};
+                        const pbk = rsSettings.publicKey || rs.publicKey || "";
+                        const fp = rsSettings.fingerprint || rs.fingerprint || "";
+                        const sni = rsSettings.serverName || (rs.serverNames?.[0]) || "";
+                        const sid = (rs.shortIds?.[0]) || rs.shortId || "";
+                        const spx = rsSettings.spiderX || rs.spiderX || "";
+                        if (pbk) params.set("pbk", pbk);
+                        if (fp) params.set("fp", fp);
+                        if (sni) params.set("sni", sni);
+                        if (sid) params.set("sid", sid);
+                        if (spx) params.set("spx", spx);
+                      } else {
+                        const tlsSettings = ss.tlsSettings || {};
+                        if (tlsSettings.fingerprint) params.set("fp", tlsSettings.fingerprint);
+                        if (tlsSettings.alpn?.length) params.set("alpn", tlsSettings.alpn.join(","));
+                        if (tlsSettings.serverName) params.set("sni", tlsSettings.serverName);
                       }
                     }
                     if (network === "ws" && ss.wsSettings) {
