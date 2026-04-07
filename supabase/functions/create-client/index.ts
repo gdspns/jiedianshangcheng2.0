@@ -141,7 +141,7 @@ Deno.serve(async (req) => {
     const inboundRes = await fetchUnsafe(`${baseUrl}/panel/api/inbounds/get/${salesInboundId}`, {
       headers: { Cookie: cookie, Accept: "application/json" },
     });
-    const inboundData = await inboundRes.json();
+    const inboundData = await safeJson(inboundRes);
     if (!inboundData?.success || !inboundData?.obj) {
       return new Response(JSON.stringify({ error: `入站 #${salesInboundId} 不存在` }), {
         status: 400,
