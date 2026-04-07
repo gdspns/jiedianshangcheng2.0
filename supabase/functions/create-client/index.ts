@@ -19,11 +19,15 @@ async function fetchUnsafe(url: string, init?: RequestInit): Promise<Response> {
   }
 }
 
-// Safe JSON parse from Response (handles empty body)
+// Safe JSON parse from Response (handles empty/truncated body)
 async function safeJson(res: Response): Promise<any> {
-  const text = await res.text();
-  if (!text || text.trim().length === 0) return null;
-  try { return JSON.parse(text); } catch { return null; }
+  try {
+    const text = await res.text();
+    if (!text || text.trim().length === 0) return null;
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 }
 
 // Login to 3x-ui and get session cookie
