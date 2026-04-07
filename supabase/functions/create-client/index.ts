@@ -19,6 +19,13 @@ async function fetchUnsafe(url: string, init?: RequestInit): Promise<Response> {
   }
 }
 
+// Safe JSON parse from Response (handles empty body)
+async function safeJson(res: Response): Promise<any> {
+  const text = await res.text();
+  if (!text || text.trim().length === 0) return null;
+  try { return JSON.parse(text); } catch { return null; }
+}
+
 // Login to 3x-ui and get session cookie
 async function login3xui(panelUrl: string, username: string, password: string): Promise<string | null> {
   const baseUrl = panelUrl.replace(/\/+$/, "");
@@ -32,8 +39,8 @@ async function login3xui(panelUrl: string, username: string, password: string): 
     if (!setCookie) return null;
     const match = setCookie.match(/([^=]+=[^;]+)/);
     const cookie = match ? match[1] : null;
-    const body = await res.json();
-    return body.success && cookie ? cookie : null;
+    const body = await safeJson(res);
+    return body?.success && cookie ? cookie : null;
   } catch (err) {
     console.error("3x-ui login failed:", err);
     return null;
@@ -134,7 +141,7 @@ Deno.serve(async (req) => {
     const inboundRes = await fetchUnsafe(`${baseUrl}/panel/api/inbounds/get/${salesInboundId}`, {
       headers: { Cookie: cookie, Accept: "application/json" },
     });
-    const inboundData = await inboundRes.json();
+    const inboundData = await safeJson(inboundRes);
     if (!inboundData?.success || !inboundData?.obj) {
       return new Response(JSON.stringify({ error: `入站 #${salesInboundId} 不存在` }), {
         status: 400,
@@ -190,7 +197,7 @@ Deno.serve(async (req) => {
         headers: { Cookie: cookie, "Content-Type": "application/x-www-form-urlencoded" },
         body: formData.toString(),
       });
-      const updateBody = await updateRes.json();
+      const updateBody = await safeJson(updateRes);
       console.log("SOCKS5 add account result:", updateBody);
 
       if (!updateBody?.success) {
@@ -234,7 +241,7 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify(addClientBody),
       });
-      const addBody = await addRes.json();
+      const addBody = await safeJson(addRes);
       console.log("addClient result:", addBody);
 
       if (!addBody?.success) {
