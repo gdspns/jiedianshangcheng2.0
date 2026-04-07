@@ -241,7 +241,7 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify(addClientBody),
       });
-      const addBody = await addRes.json();
+      const addBody = await safeJson(addRes);
       console.log("addClient result:", addBody);
 
       if (!addBody?.success) {
