@@ -1066,7 +1066,9 @@ export default function ClientPortal() {
                       vmessObj.path = ss.wsSettings.path || "";
                       vmessObj.host = ss.wsSettings.headers?.Host || "";
                     }
-                    fullLink = `vmess://${btoa(JSON.stringify(vmessObj))}`;
+                    const vmessJson = JSON.stringify(vmessObj);
+                    const vmessB64 = btoa(unescape(encodeURIComponent(vmessJson)));
+                    fullLink = `vmess://${vmessB64}`;
                   } else if (proto === "trojan" && newClientCredentials.uuid && conn) {
                     const ss = conn.streamSettings || {};
                     const params = new URLSearchParams();
