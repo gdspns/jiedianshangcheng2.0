@@ -1073,10 +1073,36 @@ export default function ClientPortal() {
                     const ss = conn.streamSettings || {};
                     const params = new URLSearchParams();
                     params.set("type", ss.network || "tcp");
-                    if (ss.security) params.set("security", ss.security);
-                    const tlsSettings = ss.tlsSettings || {};
-                    if (tlsSettings.serverName) params.set("sni", tlsSettings.serverName);
-                    if (tlsSettings.fingerprint) params.set("fp", tlsSettings.fingerprint);
+                    const security = ss.security || "none";
+                    if (security && security !== "none") {
+                      params.set("security", security);
+                      if (security === "reality" && ss.realitySettings) {
+                        const rs = ss.realitySettings;
+                        const rsSettings = rs.settings || {};
+                        const pbk = rsSettings.publicKey || rs.publicKey || "";
+                        const fp = rsSettings.fingerprint || rs.fingerprint || "";
+                        const sni = rsSettings.serverName || (rs.serverNames?.[0]) || "";
+                        const sid = (rs.shortIds?.[0]) || rs.shortId || "";
+                        const spx = rsSettings.spiderX || rs.spiderX || "";
+                        if (pbk) params.set("pbk", pbk);
+                        if (fp) params.set("fp", fp);
+                        if (sni) params.set("sni", sni);
+                        if (sid) params.set("sid", sid);
+                        if (spx) params.set("spx", spx);
+                      } else {
+                        const tlsSettings = ss.tlsSettings || {};
+                        if (tlsSettings.fingerprint) params.set("fp", tlsSettings.fingerprint);
+                        if (tlsSettings.alpn?.length) params.set("alpn", tlsSettings.alpn.join(","));
+                        if (tlsSettings.serverName) params.set("sni", tlsSettings.serverName);
+                      }
+                    }
+                    if (ss.network === "ws" && ss.wsSettings) {
+                      if (ss.wsSettings.path) params.set("path", ss.wsSettings.path);
+                      if (ss.wsSettings.headers?.Host) params.set("host", ss.wsSettings.headers.Host);
+                    }
+                    if (ss.network === "grpc" && ss.grpcSettings) {
+                      if (ss.grpcSettings.serviceName) params.set("serviceName", ss.grpcSettings.serviceName);
+                    }
                     const inboundRemark2 = conn.remark ? `${conn.remark}-` : "";
                     const fragment = inboundRemark2 + (newClientRemark || (conn.regionName ? `${conn.regionName}-${checkoutData?.planName || ""}` : (checkoutData?.planName || "node")));
                     fullLink = `trojan://${newClientCredentials.uuid}@${conn.address}:${conn.port}?${params.toString()}#${encodeURIComponent(fragment)}`;
