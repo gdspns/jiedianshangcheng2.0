@@ -211,24 +211,30 @@ Deno.serve(async (req) => {
         });
       }
     } else {
-      // VMESS / VLESS / Trojan: generate UUID and use addClient API
+      // VMESS / VLESS / Trojan: generate UUID/password and use addClient API
       const clientId = randomUUID();
       credentials = { protocol, uuid: clientId };
 
+      // Trojan uses "password" field, VLESS/VMESS use "id" field
+      const clientEntry: any = {
+        email: remark,
+        limitIp: 0,
+        totalGB: 0,
+        expiryTime: expiryTime,
+        enable: true,
+        tgId: "",
+        subId: "",
+      };
+
+      if (protocol === "trojan") {
+        clientEntry.password = clientId;
+      } else {
+        clientEntry.id = clientId;
+        clientEntry.alterId = 0;
+      }
+
       clientSettings = {
-        clients: [
-          {
-            id: clientId,
-            alterId: 0,
-            email: remark,
-            limitIp: 0,
-            totalGB: 0,
-            expiryTime: expiryTime,
-            enable: true,
-            tgId: "",
-            subId: "",
-          },
-        ],
+        clients: [clientEntry],
       };
 
       const addClientBody = {
