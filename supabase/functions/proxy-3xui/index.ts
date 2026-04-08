@@ -273,7 +273,8 @@ Deno.serve(async (req) => {
         regionName: "",
       };
 
-      const credentials = client.protocol === "socks"
+      const isSocksLike = client.protocol === "socks" || client.protocol === "mixed";
+      const credentials = isSocksLike
         ? { protocol: "socks", username: client.username, password: client.password }
         : { protocol: client.protocol, uuid: client.clientId };
 
