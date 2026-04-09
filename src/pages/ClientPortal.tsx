@@ -85,43 +85,53 @@ interface RegionItem {
   current_clients: number;
 }
 
+function wrapResponsiveIframe(iframeHtml: string): string {
+  return `<div style="position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;">${iframeHtml.replace(/style="[^"]*"/, 'style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"')}</div>`;
+}
+
 function parseVideoEmbed(raw: string): string {
   if (!raw || !raw.trim()) return "";
   const s = raw.trim();
-  // Already an iframe - ensure mobile-friendly attributes
+  const iframeAllow = 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"';
+  // Already an iframe
   if (s.startsWith("<iframe")) {
-    // Add mobile playback attributes if missing
     let html = s;
-    if (!html.includes("playsinline")) {
-      html = html.replace("<iframe", '<iframe playsinline');
+    if (!html.includes(' allow="')) {
+      html = html.replace("<iframe", `<iframe ${iframeAllow}`);
     }
-    if (!html.includes("webkit-playsinline")) {
-      html = html.replace("<iframe", '<iframe webkit-playsinline');
-    }
-    return html;
+    return wrapResponsiveIframe(html);
   }
   // YouTube
   const ytMatch = s.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
   if (ytMatch)
-    return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen playsinline webkit-playsinline style="width:100%;aspect-ratio:16/9;border-radius:12px;"></iframe>`;
+    return wrapResponsiveIframe(`<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?playsinline=1" frameborder="0" ${iframeAllow} allowfullscreen style="border:0;"></iframe>`);
   // Bilibili
   const biliMatch = s.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/);
   if (biliMatch)
-    return `<iframe src="//player.bilibili.com/player.html?bvid=${biliMatch[1]}&high_quality=1&danmaku=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts allow-popups" scrolling="no" style="width:100%;aspect-ratio:16/9;border-radius:12px;"></iframe>`;
+    return wrapResponsiveIframe(`<iframe src="//player.bilibili.com/player.html?bvid=${biliMatch[1]}&high_quality=1&danmaku=0" frameborder="0" ${iframeAllow} allowfullscreen sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts allow-popups" scrolling="no" style="border:0;"></iframe>`);
   // Direct video link
   if (/\.(mp4|webm|ogg)(\?|$)/i.test(s))
     return `<video src="${s}" controls playsinline webkit-playsinline preload="metadata" style="width:100%;border-radius:12px;"></video>`;
   // Fallback: treat as iframe src
   if (s.startsWith("http"))
-    return `<iframe src="${s}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen style="width:100%;aspect-ratio:16/9;border-radius:12px;"></iframe>`;
+    return wrapResponsiveIframe(`<iframe src="${s}" frameborder="0" ${iframeAllow} allowfullscreen style="border:0;"></iframe>`);
   return "";
 }
 
 function fixMobileVideo(html: string): string {
   if (!html) return "";
+  const iframeAllow = 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"';
   return html
-    .replace(/<iframe(?![^>]*playsinline)/g, '<iframe playsinline webkit-playsinline')
-    .replace(/<iframe(?![^>]*allow=)/g, '<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"')
+    // Add allow attribute to iframes missing it (but don't match 'allowfullscreen' as 'allow=')
+    .replace(/<iframe(?=[^>]*>)((?:(?!allow=")[^>])*)>/gi, (match, inner) => {
+      if (/\ballow="/.test(match)) return match;
+      return match.replace("<iframe", `<iframe ${iframeAllow}`);
+    })
+    // Wrap iframes with aspect-ratio in responsive containers for mobile compatibility
+    .replace(/<iframe([^>]*)style="([^"]*aspect-ratio[^"]*)"([^>]*)><\/iframe>/gi, (match, before, style, after) => {
+      return `<div style="position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:8px 0;"><iframe${before}style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"${after}></iframe></div>`;
+    })
+    // Add playsinline to video elements
     .replace(/<video(?![^>]*playsinline)/g, '<video playsinline webkit-playsinline')
     .replace(/<video(?![^>]*preload)/g, '<video preload="metadata"');
 }
