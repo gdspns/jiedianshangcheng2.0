@@ -274,9 +274,15 @@ Deno.serve(async (req) => {
       };
 
       const isSocksLike = client.protocol === "socks" || client.protocol === "mixed";
-      const credentials = isSocksLike
-        ? { protocol: "socks", username: client.username, password: client.password }
-        : { protocol: client.protocol, uuid: client.clientId };
+      let credentials: Record<string, string>;
+      if (isSocksLike) {
+        credentials = { protocol: "socks", username: client.username, password: client.password };
+      } else if (client.protocol === "trojan") {
+        // Trojan uses password as the credential (which is the UUID)
+        credentials = { protocol: "trojan", uuid: client.password || client.clientId };
+      } else {
+        credentials = { protocol: client.protocol, uuid: client.clientId };
+      }
 
       // Combine inbound remark with client remark for display
       const displayRemark = client.inboundRemark
