@@ -228,16 +228,47 @@ export default function LandingPage() {
               ))
             ) : null}
             {landingImages.length > 1 && (
-              <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 12 }}>
-                {landingImages.map((_, idx) => (
-                  <button key={idx} onClick={() => setCurrentSlide(idx)}
-                    style={{
-                      width: 10, height: 10, borderRadius: "50%", border: "none", cursor: "pointer",
-                      background: currentSlide === idx ? "var(--lp-primary)" : "rgba(128,128,128,0.4)",
-                      transition: "background 0.3s",
-                    }} />
-                ))}
-              </div>
+              <>
+                {/* Left arrow */}
+                <button
+                  onClick={() => setCurrentSlide((prev) => (prev - 1 + landingImages.length) % landingImages.length)}
+                  style={{
+                    position: "absolute", top: "50%", left: 12, transform: "translateY(-50%)",
+                    width: 40, height: 40, borderRadius: "50%", border: "none", cursor: "pointer",
+                    background: "rgba(0,0,0,0.45)", color: "#fff", fontSize: 20, fontWeight: "bold",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    zIndex: 10, transition: "background 0.2s", backdropFilter: "blur(4px)",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.7)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.45)")}
+                  aria-label="上一张"
+                >‹</button>
+                {/* Right arrow */}
+                <button
+                  onClick={() => setCurrentSlide((prev) => (prev + 1) % landingImages.length)}
+                  style={{
+                    position: "absolute", top: "50%", right: 12, transform: "translateY(-50%)",
+                    width: 40, height: 40, borderRadius: "50%", border: "none", cursor: "pointer",
+                    background: "rgba(0,0,0,0.45)", color: "#fff", fontSize: 20, fontWeight: "bold",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    zIndex: 10, transition: "background 0.2s", backdropFilter: "blur(4px)",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.7)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.45)")}
+                  aria-label="下一张"
+                >›</button>
+                {/* Dots */}
+                <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 12 }}>
+                  {landingImages.map((_, idx) => (
+                    <button key={idx} onClick={() => setCurrentSlide(idx)}
+                      style={{
+                        width: 10, height: 10, borderRadius: "50%", border: "none", cursor: "pointer",
+                        background: currentSlide === idx ? "var(--lp-primary)" : "rgba(128,128,128,0.4)",
+                        transition: "background 0.3s",
+                      }} />
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </section>
