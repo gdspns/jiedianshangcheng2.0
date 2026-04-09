@@ -166,7 +166,7 @@ function findClientByIdentifier(inboundsData: any, identifier: string) {
           inboundPort: Number(inbound.port || 0),
           inboundRemark: inbound.remark || "",
           streamSettings,
-          clientId: entry?.id || "",
+          clientId: entry?.id || entry?.password || "",
           username: entry?.user || entry?.username || "",
           password: entry?.pass || entry?.password || "",
         };
