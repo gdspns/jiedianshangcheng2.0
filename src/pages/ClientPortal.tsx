@@ -121,19 +121,60 @@ function parseVideoEmbed(raw: string): string {
 function fixMobileVideo(html: string): string {
   if (!html) return "";
   const iframeAllow = 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"';
-  return html
-    // Add allow attribute to iframes missing it (but don't match 'allowfullscreen' as 'allow=')
-    .replace(/<iframe(?=[^>]*>)((?:(?!allow=")[^>])*)>/gi, (match, inner) => {
+
+  let result = html
+    // Add allow attribute to iframes missing it
+    .replace(/<iframe(?=[^>]*>)((?:(?!allow=")[^>])*)>/gi, (match) => {
       if (/\ballow="/.test(match)) return match;
       return match.replace("<iframe", `<iframe ${iframeAllow}`);
-    })
-    // Wrap iframes with aspect-ratio in responsive containers for mobile compatibility
-    .replace(/<iframe([^>]*)style="([^"]*aspect-ratio[^"]*)"([^>]*)><\/iframe>/gi, (match, before, style, after) => {
-      return `<div style="position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:8px 0;"><iframe${before}style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"${after}></iframe></div>`;
     })
     // Add playsinline to video elements
     .replace(/<video(?![^>]*playsinline)/g, '<video playsinline webkit-playsinline')
     .replace(/<video(?![^>]*preload)/g, '<video preload="metadata"');
+
+  // Wrap ALL iframes in responsive containers for mobile compatibility
+  // Detect aspect ratio from width/height attributes or aspect-ratio style
+  result = result.replace(/<iframe([^>]*)><\/iframe>/gi, (match, attrs) => {
+    // Already wrapped in a responsive container? Skip
+    // Check if parent is already a responsive wrapper (we can't check parent here, but avoid double-wrap by checking if style already has position:absolute)
+    if (/position:\s*absolute/.test(attrs)) return match;
+
+    // Try to detect aspect ratio from width/height attributes
+    const widthMatch = attrs.match(/width=["']?(\d+)/);
+    const heightMatch = attrs.match(/height=["']?(\d+)/);
+    // Try aspect-ratio style
+    const arMatch = attrs.match(/aspect-ratio:\s*([\d.]+)\s*\/\s*([\d.]+)/);
+
+    let paddingBottom = "56.25%"; // default 16:9
+    if (widthMatch && heightMatch) {
+      const w = parseInt(widthMatch[1]);
+      const h = parseInt(heightMatch[1]);
+      if (w > 0 && h > 0) {
+        paddingBottom = ((h / w) * 100).toFixed(2) + "%";
+      }
+    } else if (arMatch) {
+      const w = parseFloat(arMatch[1]);
+      const h = parseFloat(arMatch[2]);
+      if (w > 0 && h > 0) {
+        paddingBottom = ((h / w) * 100).toFixed(2) + "%";
+      }
+    }
+
+    // Cap padding-bottom for very tall videos (portrait) to avoid excessive height
+    const pb = parseFloat(paddingBottom);
+    const maxPb = 200; // max 1:2 ratio
+    if (pb > maxPb) paddingBottom = maxPb + "%";
+
+    // Clean iframe: remove width/height attributes and old style, set absolute positioning
+    let cleanAttrs = attrs
+      .replace(/width=["']?\d+["']?/gi, '')
+      .replace(/height=["']?\d+["']?/gi, '')
+      .replace(/style="[^"]*"/gi, '');
+
+    return `<div style="position:relative;width:100%;padding-bottom:${paddingBottom};height:0;overflow:hidden;border-radius:8px;margin:8px 0;"><iframe${cleanAttrs} style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"></iframe></div>`;
+  });
+
+  return result;
 }
 
 export default function ClientPortal() {
