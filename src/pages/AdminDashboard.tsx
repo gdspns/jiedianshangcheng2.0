@@ -659,7 +659,7 @@ export default function AdminDashboard() {
 
         {/* Tab Menu */}
         <Tabs defaultValue="panel" className="w-full">
-          <TabsList className="w-full grid grid-cols-6 h-12 bg-card border border-border rounded-2xl p-1">
+          <TabsList className="w-full grid grid-cols-7 h-12 bg-card border border-border rounded-2xl p-1">
             <TabsTrigger value="panel" className="rounded-xl data-[state=active]:bg-admin-primary data-[state=active]:text-admin-primary-foreground font-bold text-xs sm:text-sm">
               <Server className="w-4 h-4 mr-1 sm:mr-2" /> 面板对接
             </TabsTrigger>
@@ -677,6 +677,9 @@ export default function AdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="tutorials" className="rounded-xl data-[state=active]:bg-client-primary data-[state=active]:text-client-primary-foreground font-bold text-xs sm:text-sm">
               <BookOpen className="w-4 h-4 mr-1 sm:mr-2" /> 使用教程
+            </TabsTrigger>
+            <TabsTrigger value="articles" className="rounded-xl data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm">
+              <FileText className="w-4 h-4 mr-1 sm:mr-2" /> 文章管理
             </TabsTrigger>
           </TabsList>
 
