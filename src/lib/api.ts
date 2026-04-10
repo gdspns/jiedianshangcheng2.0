@@ -198,6 +198,23 @@ export async function adminDeleteTutorial(token: string, tutorialId: string) {
   return callEdgeFunction("admin-plans", { action: "delete-tutorial", token, tutorial: { id: tutorialId } });
 }
 
+// Article APIs
+export async function adminGetArticles(token: string) {
+  return callEdgeFunction("admin-plans", { action: "list-articles", token });
+}
+
+export async function adminCreateArticle(token: string, article: object) {
+  return callEdgeFunction("admin-plans", { action: "create-article", token, article });
+}
+
+export async function adminUpdateArticle(token: string, article: object) {
+  return callEdgeFunction("admin-plans", { action: "update-article", token, article });
+}
+
+export async function adminDeleteArticle(token: string, articleId: string) {
+  return callEdgeFunction("admin-plans", { action: "delete-article", token, article: { id: articleId } });
+}
+
 // Create client (new purchase)
 export async function createClientOnPanel(orderId: string, regionId?: string | null) {
   return callEdgeFunction("create-client", { orderId, regionId: regionId || undefined });

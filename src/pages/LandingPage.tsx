@@ -12,10 +12,17 @@ function parseLandingImages(raw: string): string[] {
   return [raw];
 }
 
+const defaultFaqs = [
+  { q: "什么是静态住宅IP？为什么它能解决AI降智？", a: `<p><strong>静态住宅IP</strong>是由真实的互联网服务提供商(ISP)分配给家庭用户的固定IP地址。与机房IP相比，它具有极高的真人属性和信誉度。</p><p>当我们用来访问Gemini、Claude等对环境要求极其严格的AI大模型时，静态住宅IP能够有效避免被风控系统判定为"机器人"或"高风险连接"，从而彻底解决因为IP滥用导致的<strong>AI降智</strong>、回答敷衍、无法登录、频繁跳出人机验证码等问题。</p>` },
+  { q: "做跨境视频电商（如TikTok），不用住宅IP会怎样？", a: `<p>主流短视频平台对访问者IP的"真人属性"要求极为苛刻。使用普通机房代理IP会导致<strong>隐形限流</strong>和<strong>"0播放"</strong>。</p>` },
+  { q: "为什么 ChatGPT Plus 充值总是失败或被封号？", a: `<p>使用被滥用的机房IP会触发 Stripe 风控。使用静态住宅IP可大幅提升支付成功率。</p>` },
+];
+
 export default function LandingPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [landingImages, setLandingImages] = useState<string[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [faqs, setFaqs] = useState<{ q: string; a: string }[]>([]);
 
   useEffect(() => {
     (supabase as any)
@@ -26,6 +33,21 @@ export default function LandingPage() {
       .then(({ data }: any) => {
         if (data?.landing_image) {
           setLandingImages(parseLandingImages(data.landing_image));
+        }
+      });
+
+    // Load articles for FAQ section
+    (supabase as any)
+      .from("articles")
+      .select("title, content")
+      .eq("enabled", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data }: any) => {
+        if (data && data.length > 0) {
+          setFaqs(data.map((a: any) => ({ q: a.title, a: a.content })));
+        } else {
+          // Fallback hardcoded FAQs if no articles exist yet
+          setFaqs(defaultFaqs);
         }
       });
   }, []);
@@ -42,37 +64,6 @@ export default function LandingPage() {
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
-
-  const faqs = [
-    {
-      q: "什么是静态住宅IP？为什么它能解决AI降智？",
-      a: `<p><strong>静态住宅IP</strong>是由真实的互联网服务提供商(ISP)分配给家庭用户的固定IP地址。与机房IP相比，它具有极高的真人属性和信誉度。</p><p>当我们用来访问Gemini、Claude等对环境要求极其严格的AI大模型时，静态住宅IP能够有效避免被风控系统判定为"机器人"或"高风险连接"，从而彻底解决因为IP滥用导致的<strong>AI降智</strong>、回答敷衍、无法登录、频繁跳出人机验证码等问题。</p>`,
-    },
-    {
-      q: "做跨境视频电商（如TikTok），不用住宅IP会怎样？",
-      a: `<p>主流短视频平台（如TikTok、Instagram Reels、YouTube）对访问者IP的"真人属性"要求极为苛刻。如果您使用普通的机房代理IP（数据中心IP），平台的风控系统会轻易判定该账号处于异常机器环境，从而对账号进行<strong>隐形限流（Shadowban）</strong>。</p><p>最直接的后果就是您辛苦剪辑发布的视频出现<strong>"0播放"</strong>，或者永远无法触达目标国家（如美区、英区）的本地精准流量池，直播带货时也极易被强行切断。使用我们的原生静态住宅IP，相当于在目标国家拥有一台真实的物理设备，极大提升账号初始权重，保障正常的视频推流与直播效果。</p>`,
-    },
-    {
-      q: "为什么 ChatGPT Plus 充值总是失败或被封号？",
-      a: `<p>很多用户在绑定信用卡订阅 <strong>ChatGPT Plus</strong> 或绑定 <strong>OpenAI API</strong> 时，经常遇到"信用卡被拒绝"或充值后秒被封号的问题。这通常不是您的信用卡问题，而是触发了 <strong>Stripe支付网关的风控系统</strong>。</p><p>如果您使用的IP地址是万人骑的机房IP，或者IP所在的地理位置与信用卡发行地不符，Stripe会判定为极高风险的欺诈交易。使用企业级静态住宅IP，为您提供干净、固定、无黑历史的家庭宽带环境，可以大幅提升 Stripe 支付的成功率，保护您的 OpenAI 账号免遭连带封禁。</p>`,
-    },
-    {
-      q: "Claude 批量封号的底层逻辑是什么？如何做到100%防封？",
-      a: `<p><strong>Anthropic Claude</strong> 拥有目前业界最严苛的风控策略。很多团队在注册或升级 Claude Pro 后，即使没有违规操作，也会遇到无预警的 <strong>工作区停用（Workspace disabled）</strong> 或批量封号。这主要是因为"IP连带污染"。</p><p>当一个公共节点上有其他用户违规时，Claude 会将该IP段拉黑，所有使用该IP登录的账号都会被"株连"。防封的核心在于<strong>"物理环境隔离"</strong>。我们的独享原生静态IP，确保 <strong>一机一号一IP</strong>，杜绝交叉污染，为您提供高权重的白名单网络环境，是高频使用 Claude 的唯一解。</p>`,
-    },
-    {
-      q: "动态住宅IP、机房IP和静态住宅IP到底有什么区别？",
-      a: `<p>为了业务稳定，您必须了解这三者的区别：</p><p><strong>1. 机房IP (Datacenter IP)：</strong>由云服务商（如AWS、阿里云）批量生成的IP。成本极低，但被各种风控系统标记为"机器行为"，无法绕过基本的真人验证（如 Cloudflare 验证码），极易封号。</p><p><strong>2. 动态住宅IP (Dynamic Residential IP)：</strong>真实的家庭宽带IP，但特点是<strong>频繁变动</strong>。每隔几分钟或几小时就会跳到一个新城市的IP。如果用它登录 AI 大模型，系统会认为账号被盗或异地登录，频繁强制要求重新验证，严重影响效率。</p><p><strong>3. 静态独享住宅IP (Static Residential ISP)：</strong>兼具了"家庭宽带的真实高信誉"和"固定不变的稳定性"。IP长时间属于您一人，无论什么时候登录都在同一个物理位置。这是运营海外自媒体矩阵、电商防关联、以及深度依赖 AI 工作流的终极解决方案。</p>`,
-    },
-    {
-      q: "对比普通代理节点，你们的企业级纯净环境有何优势？",
-      a: `<p>普通的VPN或代理节点多为数据中心IP（机房IP），且被成千上万的人共享使用。像 ChatGPT、Claude 的风控系统会轻易识别出这些IP的异常，并采取限制措施，导致<strong>Claude封号</strong>或<strong>ChatGPT拒绝服务</strong>。</p><p>我们的纯净原生IP为独享资源，从物理层面上保障了您的网络身份真实有效，不仅速度快、不掉线，更最大程度保障了您宝贵的AI与跨境账号资产安全。</p>`,
-    },
-    {
-      q: "你们的服务支持哪些业务系统的对接？",
-      a: `<p>我们提供的是底层网络协议的纯净静态住址环境，因此完美兼容目前市面上绝大部分的业务场景，包括但不限于：<strong>Google Gemini、Anthropic Claude、OpenAI ChatGPT</strong> 及其 API，像 <strong>Cursor</strong> 这种集成AI的开发工具，以及 <strong>TikTok、Shopee、Amazon</strong> 等跨境电商与社媒运营环境的搭建。</p>`,
-    },
-  ];
 
   return (
     <>
