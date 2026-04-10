@@ -259,6 +259,57 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ====== ARTICLES ======
+    if (action === "list-articles") {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return new Response(JSON.stringify({ articles: data }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "create-article") {
+      const { article } = body;
+      const { data, error } = await supabase
+        .from("articles")
+        .insert(article)
+        .select()
+        .single();
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true, article: data }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "update-article") {
+      const { article } = body;
+      const { id, ...updates } = article;
+      updates.updated_at = new Date().toISOString();
+      const { error } = await supabase
+        .from("articles")
+        .update(updates)
+        .eq("id", id);
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "delete-article") {
+      const { article } = body;
+      const { error } = await supabase
+        .from("articles")
+        .delete()
+        .eq("id", article.id);
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return new Response(JSON.stringify({ error: "Unknown action" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
