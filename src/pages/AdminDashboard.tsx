@@ -1584,6 +1584,130 @@ export default function AdminDashboard() {
               )}
             </div>
           </TabsContent>
+
+          {/* 文章管理 */}
+          <TabsContent value="articles">
+            <div className="bg-card p-6 rounded-2xl shadow-sm border border-border space-y-6">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <h2 className="text-xl font-bold flex items-center text-amber-500">
+                  <FileText className="w-5 h-5 mr-2" /> 文章管理
+                </h2>
+                <button
+                  onClick={async () => {
+                    const key = "addArticle";
+                    setBtnLoading(key, "添加中...");
+                    try {
+                      const maxSort = articles.length > 0 ? Math.max(...articles.map(a => a.sort_order)) : 0;
+                      await adminCreateArticle(token, {
+                        title: "新文章标题",
+                        content: "<p>文章内容</p>",
+                        sort_order: maxSort + 1,
+                        enabled: true,
+                      });
+                      await loadArticles();
+                      setBtnLoading(key, "✅ 已添加");
+                    } catch {
+                      setBtnLoading(key, "❌ 失败");
+                    }
+                    clearBtn(key);
+                  }}
+                  disabled={!!btnStatus["addArticle"]}
+                  className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center shadow-sm disabled:opacity-70 hover:opacity-90"
+                >
+                  <Plus className="w-4 h-4 mr-1" /> {btnStatus["addArticle"] || "添加文章"}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">💡 管理首页"常见疑问"板块的问答文章。标题为问题，内容为HTML格式的答案。</p>
+
+              {articles.length === 0 ? (
+                <div className="text-center text-muted-foreground py-12 border border-dashed border-border rounded-xl">
+                  <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p className="font-bold mb-1">暂无文章</p>
+                  <p className="text-sm">点击上方"添加文章"按钮创建第一篇文章</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {articles.map((article) => (
+                    <div key={article.id} className="border border-border rounded-xl p-4 bg-muted/30 space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                        <div className="md:col-span-5">
+                          <label className="block text-xs text-muted-foreground mb-1">标题（问题）</label>
+                          <input
+                            type="text"
+                            value={article.title}
+                            onChange={e => setArticles(articles.map(a => a.id === article.id ? { ...a, title: e.target.value } : a))}
+                            className="w-full border border-input p-2 rounded-lg text-sm bg-background focus:ring-2 focus:ring-amber-500 outline-none font-bold"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-muted-foreground mb-1">排序</label>
+                          <input
+                            type="number"
+                            value={article.sort_order}
+                            onChange={e => setArticles(articles.map(a => a.id === article.id ? { ...a, sort_order: Number(e.target.value) } : a))}
+                            className="w-full border border-input p-2 rounded-lg text-sm bg-background focus:ring-2 focus:ring-amber-500 outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-2 flex items-end">
+                          <label className="flex items-center gap-1 cursor-pointer text-sm">
+                            <input
+                              type="checkbox"
+                              checked={article.enabled}
+                              onChange={e => setArticles(articles.map(a => a.id === article.id ? { ...a, enabled: e.target.checked } : a))}
+                              className="w-4 h-4 rounded"
+                            />
+                            启用
+                          </label>
+                        </div>
+                        <div className="md:col-span-3 flex items-end gap-2">
+                          <button
+                            onClick={async () => {
+                              const key = `saveArt-${article.id}`;
+                              setBtnLoading(key, "保存中...");
+                              try {
+                                await adminUpdateArticle(token, article);
+                                setBtnLoading(key, "✅ 已保存");
+                              } catch {
+                                setBtnLoading(key, "❌ 失败");
+                              }
+                              clearBtn(key);
+                            }}
+                            disabled={!!btnStatus[`saveArt-${article.id}`]}
+                            className="bg-success text-success-foreground px-3 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-colors disabled:opacity-70 min-w-[56px]"
+                          >
+                            {btnStatus[`saveArt-${article.id}`] || "保存"}
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (!confirm("确定删除该文章？")) return;
+                              try {
+                                await adminDeleteArticle(token, article.id);
+                                setArticles(articles.filter(a => a.id !== article.id));
+                              } catch {}
+                            }}
+                            className="bg-destructive/10 text-destructive px-3 py-2 rounded-lg text-xs font-bold hover:bg-destructive/20 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      {/* Content editor */}
+                      <div>
+                        <label className="block text-xs text-muted-foreground mb-1">内容（HTML格式）</label>
+                        <textarea
+                          value={article.content}
+                          onChange={e => setArticles(articles.map(a => a.id === article.id ? { ...a, content: e.target.value } : a))}
+                          rows={6}
+                          className="w-full border border-input p-2 rounded-lg text-sm bg-background focus:ring-2 focus:ring-amber-500 outline-none font-mono"
+                          placeholder="<p>在此输入HTML格式的内容...</p>"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
