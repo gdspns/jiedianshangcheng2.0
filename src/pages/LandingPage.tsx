@@ -12,6 +12,12 @@ function parseLandingImages(raw: string): string[] {
   return [raw];
 }
 
+const defaultFaqs = [
+  { q: "什么是静态住宅IP？为什么它能解决AI降智？", a: `<p><strong>静态住宅IP</strong>是由真实的互联网服务提供商(ISP)分配给家庭用户的固定IP地址。与机房IP相比，它具有极高的真人属性和信誉度。</p><p>当我们用来访问Gemini、Claude等对环境要求极其严格的AI大模型时，静态住宅IP能够有效避免被风控系统判定为"机器人"或"高风险连接"，从而彻底解决因为IP滥用导致的<strong>AI降智</strong>、回答敷衍、无法登录、频繁跳出人机验证码等问题。</p>` },
+  { q: "做跨境视频电商（如TikTok），不用住宅IP会怎样？", a: `<p>主流短视频平台对访问者IP的"真人属性"要求极为苛刻。使用普通机房代理IP会导致<strong>隐形限流</strong>和<strong>"0播放"</strong>。</p>` },
+  { q: "为什么 ChatGPT Plus 充值总是失败或被封号？", a: `<p>使用被滥用的机房IP会触发 Stripe 风控。使用静态住宅IP可大幅提升支付成功率。</p>` },
+];
+
 export default function LandingPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [landingImages, setLandingImages] = useState<string[]>([]);
